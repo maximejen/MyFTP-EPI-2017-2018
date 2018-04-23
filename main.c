@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/stat.h>
+#include <signal.h>
 #include "include/my_ftp.h"
 
 static const char FLAGS[2][7] = {
@@ -40,6 +41,8 @@ static void fill_string(char **str, const char *to_copy)
 static int parse_args(int argc, char **argv, args_t *args)
 {
 	struct stat buf;
+	size_t size;
+	char *str = NULL;
 
 	for (int i = 1 ; i < argc ; i++) {
 		if (argv[i][0] >= '0' && argv[i][0] <= '9')
@@ -49,6 +52,12 @@ static int parse_args(int argc, char **argv, args_t *args)
 	}
 	if (args->port <= 0 || args->path == NULL)
 		return (fprintf(stderr, "%s\n", ERROR_MESSAGE) * 0 + 84);
+	size = strlen(args->path);
+	if (args->path[size - 1] == '/')
+		args->path[size - 1] = 0;
+	str = realpath(args->path, str);
+	free(args->path);
+	args->path = str;
 	return (0);
 }
 
@@ -59,10 +68,12 @@ int main(int argc, char **argv)
 	int ret = 84;
 
 	if (argc >= 3) {
+		signal(SIGINT, &sigint);
 		ret = parse_args(argc, argv, &args);
 		if (ret != 84) {
 			data.args = args;
-			wait_for_connections(&data);
+			printf("home : %s\n", data.args.path);
+			ret = wait_for_connections(&data);
 		}
 		return (ret);
 	}

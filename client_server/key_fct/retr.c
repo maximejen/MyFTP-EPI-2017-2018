@@ -11,6 +11,6 @@ int retr(struct client_data *cdata, char **cmd)
 {
 	UNUSED(cdata);
 	UNUSED(cmd);
-	CONTINUE = 0;
+	cdata->ctn = 0;
 	return (0);
 }

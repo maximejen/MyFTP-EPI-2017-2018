@@ -7,12 +7,10 @@
 
 #include "../../include/my_ftp.h"
 
-int CONTINUE;
-
 int quit(struct client_data *cdata, char **cmd)
 {
 	UNUSED(cmd);
 	send_message(cdata->csock, 221, "Goodbye.");
-	CONTINUE = 0;
+	cdata->ctn = 0;
 	return (0);
 }

@@ -34,9 +34,8 @@ typedef struct client_data {
 	char *home;
 	int (*fctptr[14])(struct client_data *, char **cmd);
 	char buffer[BUFFER_SIZE];
+	int ctn;
 } client_data_t;
-
-extern int CONTINUE;
 
 /*
 ** main_server.c

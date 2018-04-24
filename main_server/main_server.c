@@ -12,19 +12,10 @@
 #include <stdlib.h>
 #include "../include/my_ftp.h"
 
-int CONTINUE = 1;
-
 void sigint(int sig)
 {
 	(void)sig;
-	CONTINUE = 0;
 	exit(0);
-}
-
-static void close_sockets(csd_t *data)
-{
-	close(data->csock);
-	close(data->client_sock);
 }
 
 /*
@@ -39,7 +30,7 @@ int wait_for_connections(csd_t *data)
 
 	if ((data->csock = create_socket(data->args.port, "TCP")) == -1)
 		return (84);
-	while (pid != 0 && CONTINUE) {
+	while (pid != 0) {
 		if (listen(data->csock, data->args.port) == -1)
 			return (84);
 		data->client_sock = accept(data->csock,
@@ -49,8 +40,5 @@ int wait_for_connections(csd_t *data)
 		if (pid != 0)
 			close(data->client_sock);
 	}
-	if (pid == 0)
-		return (handle_client(data));
-	close_sockets(data);
-	return (0);
+	return (handle_client(data));
 }

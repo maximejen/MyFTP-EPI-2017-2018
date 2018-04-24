@@ -41,12 +41,12 @@ int is_auth(client_data_t *cdata)
 int handle_client(csd_t *data)
 {
 	client_data_t cdata = {data->client_sock, NULL, 0, strdup("/"),
-		strdup(data->args.path), {NULL}, ""};
+		strdup(data->args.path), {NULL}, "", 1};
 
 	fill_function_ptr(&cdata);
 	memset(cdata.buffer, 0, BUFFER_SIZE);
 	send_message(cdata.csock, 220, "You are correctly connected");
-	while (CONTINUE) {
+	while (cdata.ctn) {
 		if (get_instruction(&cdata) == -1)
 			return (-1);
 		interpret_instruction(&cdata);

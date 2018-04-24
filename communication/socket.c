@@ -10,7 +10,7 @@
 #include <stdio.h>
 #include <netdb.h>
 #include <zconf.h>
-#include "include/my_ftp.h"
+#include "../include/my_ftp.h"
 
 int create_socket(int port, const char *protocol)
 {

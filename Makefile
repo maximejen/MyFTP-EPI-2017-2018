@@ -13,7 +13,7 @@ NAME	=	server
 
 SRC	=	main.c					\
 		main_server/main_server.c		\
-		socket.c				\
+		communication/socket.c			\
 		client_server/client_server.c		\
 		client_server/custom_split.c		\
 		client_server/str_replace.c		\

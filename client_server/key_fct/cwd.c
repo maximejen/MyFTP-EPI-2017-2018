@@ -18,7 +18,7 @@ static const char *SUCCESS = "Directory successfully changed.";
 
 static const char *FAIL = "Failed to change directory.";
 
-int check_path(client_data_t *cdata, char **path)
+static int check_path(client_data_t *cdata, char **path)
 {
 	struct stat buf;
 	size_t size = strlen(*path);

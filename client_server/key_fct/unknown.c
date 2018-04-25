@@ -12,10 +12,9 @@ static const char *LOG_PLS = "Please login with USER and PASS.";
 int unknown(struct client_data *cdata, char **cmd)
 {
 	UNUSED(cmd);
-	if (is_auth(cdata)) {
-		send_message(cdata->csock, 530, LOG_PLS);
-	}
-	else
+	if (is_auth(cdata))
 		send_message(cdata->csock, 500, "Unknown command.");
+	else
+		send_message(cdata->csock, 530, LOG_PLS);
 	return (0);
 }

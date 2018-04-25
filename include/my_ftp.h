@@ -8,6 +8,8 @@
 #ifndef MY_FTP_MY_FTP_H
 	#define MY_FTP_MY_FTP_H
 
+	#include <stdlib.h>
+
 	#define INVALID_SOCKET -1
 	#define BUFFER_SIZE 1024
 	#define CLRF "\n\r"
@@ -32,9 +34,11 @@ typedef struct client_data {
 	int auth;
 	char *pwd;
 	char *home;
-	int (*fctptr[14])(struct client_data *, char **cmd);
+	int (*fctptr[15])(struct client_data *, char **cmd);
 	char buffer[BUFFER_SIZE];
 	int ctn;
+	t_socket tsock;
+	char *cmd;
 } client_data_t;
 
 /*
@@ -66,6 +70,7 @@ int is_auth(client_data_t *cdata);
 */
 char *str_replace(char *str, const char *to_replace, const char *replace_str);
 char *str_push(char *str, const char *to_push);
+int rand_nbr(size_t max);
 
 /*
 ** read_and_interpret.c
@@ -96,5 +101,16 @@ int retr(struct client_data *cdata, char **cmd);
 int stor(struct client_data *cdata, char **cmd);
 int user(struct client_data *cdata, char **cmd);
 int unknown(struct client_data *cdata, char **cmd);
+
+int get_socket_info(int sock, struct sockaddr_in *s);
+char *get_socket_ip(int sock);
+char *get_ip(struct sockaddr_in *sc);
+
+int exec_list(client_data_t *cdata, const char *path);
+
+/*
+** transfer_thread_function.c
+*/
+void *start_thread(void *arg);
 
 #endif //MY_FTP_MY_FTP_H

@@ -8,6 +8,8 @@
 #include <memory.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <fcntl.h>
+#include <zconf.h>
 
 char *str_push(char *str, const char *to_push)
 {
@@ -30,15 +32,37 @@ char *str_push(char *str, const char *to_push)
 
 char *str_replace(char *str, const char *to_replace, const char *replace_str)
 {
-	char *tmp;
+	char *tmp = NULL;
 	char *tmp1 = str;
 	char *s = NULL;
 
-	while ((tmp = strsep(&tmp1, to_replace)) != NULL && tmp1 != NULL) {
-		if (!(s = str_push(s, tmp)) || !(s = str_push(s, replace_str)))
-			return NULL;
-		tmp1 = tmp;
-	}
+	do {
+		tmp = strsep(&tmp1, to_replace);
+		if (tmp && (!(s = str_push(s, tmp))))
+			return (NULL);
+		if (tmp1 && !(s = str_push(s, replace_str)))
+			return (NULL);
+//		if (tmp && tmp1 && (!(s = str_push(s, tmp)) ||
+//			!(s = str_push(s, replace_str))))
+//			return (NULL);
+	} while (tmp);
 	free(str);
 	return s;
+}
+
+/*
+** Description:
+** This function find a random nbr under max using /dev/urandom file
+*/
+int rand_nbr(size_t max)
+{
+	int rand = 0;
+	int fd = open("/dev/urandom", O_RDONLY);
+
+	if (fd != -1) {
+		read(fd, &rand, 4);
+		rand %= max;
+		close(fd);
+	}
+	return (rand);
 }

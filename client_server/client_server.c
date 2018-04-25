@@ -41,7 +41,7 @@ int is_auth(client_data_t *cdata)
 int handle_client(csd_t *data)
 {
 	client_data_t cdata = {data->client_sock, NULL, 0, strdup("/"),
-		strdup(data->args.path), {NULL}, "", 1};
+		strdup(data->args.path), {NULL}, "", 1, 0, NULL};
 
 	fill_function_ptr(&cdata);
 	memset(cdata.buffer, 0, BUFFER_SIZE);

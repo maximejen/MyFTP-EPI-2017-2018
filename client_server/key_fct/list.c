@@ -8,6 +8,7 @@
 #include <memory.h>
 #include <zconf.h>
 #include <sys/stat.h>
+#include <stdio.h>
 #include "../../include/my_ftp.h"
 
 static const char *LOG_PLS = "Please login with USER and PASS.";
@@ -31,15 +32,26 @@ static int check_path(client_data_t *cdata, const char *path)
 	return (0);
 }
 
-int exec_list(client_data_t *cdata, const char *path)
+int exec_list(client_data_t *cdata, char *path)
 {
-	send_message(cdata->csock, 220, path);
+	FILE *f;
+	char *cmd = strdup("ls -l");
+	char c;
+
+	path = realpath(path, NULL);
 	if (check_path(cdata, path) == 1) {
-		send_message(cdata->tsock, 220, SUCCESS);
-		// TODO : write in the cdata->tsock the result of the ls in the path.
+		cmd = str_push(cmd, " ");
+		cmd = str_push(cmd, path);
+		f = popen(cmd, "r");
+		while ((c = (char)getc(f)) > 0)
+			write(cdata->tsock, &c, 1);
+		pclose(f);
+		send_message(cdata->csock, 220, SUCCESS);
 	}
-	else
+	else {
 		send_message(cdata->csock, 550, FAIL);
+		return (1);
+	}
 	return (0);
 }
 

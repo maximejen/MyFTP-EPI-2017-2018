@@ -107,9 +107,9 @@ int get_socket_info(int sock, struct sockaddr_in *s);
 char *get_socket_ip(int sock);
 char *get_ip(struct sockaddr_in *sc);
 
-int exec_list(client_data_t *cdata, const char *path);
-int exec_stor(client_data_t *cdata, const char *path);
-int exec_retr(client_data_t *cdata, const char *path);
+int exec_list(client_data_t *cdata, char *path);
+int exec_stor(client_data_t *cdata, char *path);
+int exec_retr(client_data_t *cdata, char *path);
 
 /*
 ** transfer_thread_function.c

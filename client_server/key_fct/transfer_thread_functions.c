@@ -9,6 +9,7 @@
 #include <netinet/in.h>
 #include <stdio.h>
 #include <memory.h>
+#include <stdlib.h>
 #include "../../include/my_ftp.h"
 
 static const char *SCS = "227 Entering Passive Mode";
@@ -25,39 +26,40 @@ static int parse_cmd(client_data_t *cdata)
 	char **tab = custom_split(cdata->cmd, ' ');
 	int i;
 	char *path = strdup(cdata->home);
-	int (*ptr[3])(client_data_t *, const char *) =
+	int (*ptr[3])(client_data_t *, char *) =
 		{exec_list, exec_retr, exec_stor};
+	int ret = 0;
 
 	if (!tab)
-		return (0);
+		return (1);
 	tab[0] = strtoupper(tab[0]);
 	for (i = 0 ; KEYS[i] && strcmp(KEYS[i], tab[0]) != 0 ; i++);
 	if (path[strlen(path) - 1] != '/')
-		str_push(path, "/");
+		path = str_push(path, "/");
 	path = str_push(path, strcmp(tab[1], ".") != 0 ? tab[1] : cdata->pwd);
-	path = realpath(path, NULL);
-	ptr[i](cdata, path);
+	ret = ptr[i](cdata, path);
 	free(path);
 	free_wordtab(tab);
-	return (0);
+	return (ret);
 }
 
-static void define_ip_and_port(char **ip, int *port[3], int sock)
+static void define_ip_and_port(char **ip, int *port, int sock)
 {
-	*port[0] = rand_nbr(256);
-	*port[1] = rand_nbr(256);
-	*port[2] = *port[0] * 256 + *port[1];
+	port[0] = rand_nbr(256);
+	port[1] = rand_nbr(256);
+	port[2] = port[0] * 256 + port[1];
 	*ip = get_socket_ip(sock);
-	printf("port : %d\n", *port[2]);
+	printf("port : %d\n", port[2]);
 	*ip = str_replace(*ip, ".", ",");
 }
 
-static void finish_socket_usage(client_data_t *cdata)
+static char *finish_socket_usage(client_data_t *cdata)
 {
 	free(cdata->cmd);
 	cdata->cmd = NULL;
 	close(cdata->tsock);
 	cdata->tsock = 0;
+	return ("OK");
 }
 
 void *start_thread(void *arg)
@@ -72,14 +74,12 @@ void *start_thread(void *arg)
 		close(cdata->tsock);
 		cdata->tsock = 0;
 	}
-	define_ip_and_port(&ip, (int **)&p, cdata->csock);
+	define_ip_and_port(&ip, p, cdata->csock);
 	cdata->tsock = create_socket(p[2], "TCP");
 	dprintf(cdata->csock, "%s (%s,%d,%d).%s", SCS, ip, p[0], p[1], CLRF);
 	if (listen(cdata->tsock, p[2]) == -1)
 		return ("KO");
 	cdata->tsock = accept(cdata->tsock, (struct sockaddr *)&sc, &ss);
 	while (cdata->cmd == NULL);
-	parse_cmd(cdata);
-	finish_socket_usage(cdata);
-	return ("OK");
+	return (parse_cmd(cdata) != 1 ? finish_socket_usage(cdata) : "KO");
 }

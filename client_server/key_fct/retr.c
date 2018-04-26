@@ -6,14 +6,51 @@
 */
 
 #include <memory.h>
+#include <fcntl.h>
+#include <zconf.h>
+#include <sys/stat.h>
+#include <stdio.h>
 #include "../../include/my_ftp.h"
 
 static const char *LOG_PLS = "Please login with USER and PASS.";
 
-int exec_retr(client_data_t *cdata, const char *path)
+static const char *SUCCESS_CNCT = "ASCII data connection established.";
+
+static const char *FAIL = "Access denied.";
+
+static const char *SUCCESS = "Transfer complete.";
+
+static int check_path(client_data_t *cdata, const char *path)
 {
-	send_message(cdata->csock, 220, path);
-	send_message(cdata->tsock, 220, "RETR OK.");
+	struct stat buf;
+
+	if (stat(path, &buf) != -1 && S_ISREG(buf.st_mode) &&
+		strncmp(cdata->home, path, strlen(cdata->home)) == 0) {
+		return (1);
+	}
+	return (0);
+}
+
+int exec_retr(client_data_t *cdata, char *path)
+{
+	int fd;
+	char buf[1024];
+	ssize_t rd = 0;
+
+	path = realpath(path, NULL);
+	memset(buf, 0, 1024);
+	printf("path : %s\n", path);
+	if (check_path(cdata, path)) {
+		fd = open(path, O_RDONLY, 0644);
+		while ((rd = read(fd, buf, 1023)))
+			write(cdata->tsock, buf, (size_t)rd);
+		close(fd);
+		send_message(cdata->csock, 226, SUCCESS);
+	}
+	else {
+		send_message(cdata->csock, 550, FAIL);
+		return (1);
+	}
 	return (0);
 }
 
@@ -26,6 +63,7 @@ int retr(struct client_data *cdata, char **cmd)
 			cdata->cmd = str_push(cdata->cmd, cmd[1]);
 		else
 			cdata->cmd = str_push(cdata->cmd, ".");
+		send_message(cdata->csock, 150, SUCCESS_CNCT);
 		// Todo : UNLOCK the mutex for the thread.
 	}
 	else

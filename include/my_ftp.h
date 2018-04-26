@@ -9,6 +9,7 @@
 	#define MY_FTP_MY_FTP_H
 
 	#include <stdlib.h>
+	#include <netinet/in.h>
 
 	#define INVALID_SOCKET -1
 	#define BUFFER_SIZE 1024
@@ -107,6 +108,8 @@ char *get_socket_ip(int sock);
 char *get_ip(struct sockaddr_in *sc);
 
 int exec_list(client_data_t *cdata, const char *path);
+int exec_stor(client_data_t *cdata, const char *path);
+int exec_retr(client_data_t *cdata, const char *path);
 
 /*
 ** transfer_thread_function.c

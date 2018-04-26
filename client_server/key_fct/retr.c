@@ -12,8 +12,9 @@ static const char *LOG_PLS = "Please login with USER and PASS.";
 
 int exec_retr(client_data_t *cdata, const char *path)
 {
-	UNUSED(path);
+	send_message(cdata->csock, 220, path);
 	send_message(cdata->tsock, 220, "RETR OK.");
+	return (0);
 }
 
 int retr(struct client_data *cdata, char **cmd)
@@ -29,4 +30,5 @@ int retr(struct client_data *cdata, char **cmd)
 	}
 	else
 		send_message(cdata->csock, 530, LOG_PLS);
+	return (0);
 }

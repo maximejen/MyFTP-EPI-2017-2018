@@ -8,23 +8,61 @@
 #include <zconf.h>
 #include <netinet/in.h>
 #include <stdio.h>
+#include <memory.h>
 #include "../../include/my_ftp.h"
 
-static const char *SUCCESS = "227 Entering Passive Mode";
+static const char *SCS = "227 Entering Passive Mode";
 
-static const char *KEYS[5] = {
+static const char *KEYS[4] = {
 	"LIST",
 	"RETR",
 	"STOR",
 	NULL
 };
 
+static int parse_cmd(client_data_t *cdata)
+{
+	char **tab = custom_split(cdata->cmd, ' ');
+	int i;
+	char *path = strdup(cdata->home);
+	int (*ptr[3])(client_data_t *, const char *) =
+		{exec_list, exec_retr, exec_stor};
+
+	if (!tab)
+		return (0);
+	tab[0] = strtoupper(tab[0]);
+	for (i = 0 ; KEYS[i] && strcmp(KEYS[i], tab[0]) != 0 ; i++);
+	if (path[strlen(path) - 1] != '/')
+		str_push(path, "/");
+	path = str_push(path, strcmp(tab[1], ".") != 0 ? tab[1] : cdata->pwd);
+	path = realpath(path, NULL);
+	ptr[i](cdata, path);
+	free(path);
+	free_wordtab(tab);
+	return (0);
+}
+
+static void define_ip_and_port(char **ip, int *port[3], int sock)
+{
+	*port[0] = rand_nbr(256);
+	*port[1] = rand_nbr(256);
+	*port[2] = *port[0] * 256 + *port[1];
+	*ip = get_socket_ip(sock);
+	printf("port : %d\n", *port[2]);
+	*ip = str_replace(*ip, ".", ",");
+}
+
+static void finish_socket_usage(client_data_t *cdata)
+{
+	free(cdata->cmd);
+	cdata->cmd = NULL;
+	close(cdata->tsock);
+	cdata->tsock = 0;
+}
 
 void *start_thread(void *arg)
 {
-	int o;
-	int t;
-	int port;
+	int p[3];
 	struct sockaddr_in sc;
 	socklen_t ss = sizeof(sc);
 	client_data_t *cdata = arg;
@@ -34,19 +72,14 @@ void *start_thread(void *arg)
 		close(cdata->tsock);
 		cdata->tsock = 0;
 	}
-	o = rand_nbr(256);
-	t = rand_nbr(256);
-	port = o * 256 + t;
-	cdata->tsock = create_socket(port, "TCP");
-	ip = get_socket_ip(cdata->csock);
-	printf("port : %d\n", port);
-	ip = str_replace(ip, ".", ",");
-	dprintf(cdata->csock, "%s (%s,%d,%d).%s", SUCCESS, ip, o, t, CLRF);
-	if (listen(cdata->tsock, port) == -1)
+	define_ip_and_port(&ip, (int **)&p, cdata->csock);
+	cdata->tsock = create_socket(p[2], "TCP");
+	dprintf(cdata->csock, "%s (%s,%d,%d).%s", SCS, ip, p[0], p[1], CLRF);
+	if (listen(cdata->tsock, p[2]) == -1)
 		return ("KO");
 	cdata->tsock = accept(cdata->tsock, (struct sockaddr *)&sc, &ss);
 	while (cdata->cmd == NULL);
-	// Todo : Parse the command, and get the path given in arg, for all the cases. for LIST, just use the pwd.
-	// Todo : Exec the command in the cdata struct.
+	parse_cmd(cdata);
+	finish_socket_usage(cdata);
 	return ("OK");
 }

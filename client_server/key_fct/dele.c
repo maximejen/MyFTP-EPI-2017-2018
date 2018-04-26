@@ -24,7 +24,6 @@ static int check_path(client_data_t *cdata, char **path)
 
 	if (stat(*path, &buf) != -1 && S_ISREG(buf.st_mode) &&
 		strncmp(cdata->home, *path, strlen(cdata->home)) == 0) {
-		printf("try to delete : %s\n", *path);
 		if (unlink(*path) == -1)
 			send_message(cdata->csock, 550, FAIL);
 	} else {

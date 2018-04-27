@@ -18,9 +18,10 @@ int pass(struct client_data *cdata, char **cmd)
 		send_message(cdata->csock, 230, ALRD_LOGGED);
 		return (0);
 	}
+	strtoupper(cdata->user);
 	if (cdata->user == NULL)
 		send_message(cdata->csock, 503, "Login with USER first.");
-	else if (cdata->user[0] != 'a'/*strcmp(cdata->user, "anonymous") != 0*/) {
+	else if (cdata->user[0] != 'A'/*strcmp(cdata->user, "anonymous") != 0*/) {
 		send_message(cdata->csock, 530, "Login incorrect.");
 		free(cdata->user);
 		cdata->user = NULL;

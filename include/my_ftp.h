@@ -13,7 +13,7 @@
 
 	#define INVALID_SOCKET -1
 	#define BUFFER_SIZE 1024
-	#define CLRF "\n\r"
+	#define CLRF "\r\n"
 	#define UNUSED(x) ((void)(x))
 
 typedef int t_socket;
@@ -114,6 +114,6 @@ int exec_retr(client_data_t *cdata, char *path);
 /*
 ** transfer_thread_function.c
 */
-void *start_thread(void *arg);
+void *start_pasv_thread(void *arg);
 
 #endif //MY_FTP_MY_FTP_H

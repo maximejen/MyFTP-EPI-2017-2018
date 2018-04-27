@@ -61,7 +61,8 @@ int pasv(struct client_data *cdata, char **cmd)
 
 	UNUSED(cmd);
 	if (is_auth(cdata)) {
-		if (pthread_create(&thread, NULL, start_thread, cdata) != 0)
+		if (pthread_create(&thread, NULL, start_pasv_thread,
+			cdata) != 0)
 			return (1);
 	} else
 		send_message(cdata->csock, 530, LOG_PLS);

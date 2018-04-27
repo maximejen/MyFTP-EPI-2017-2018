@@ -62,7 +62,7 @@ static char *finish_socket_usage(client_data_t *cdata)
 	return ("OK");
 }
 
-void *start_thread(void *arg)
+void *start_pasv_thread(void *arg)
 {
 	int p[3];
 	struct sockaddr_in sc;

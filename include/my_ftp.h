@@ -115,5 +115,6 @@ int exec_retr(client_data_t *cdata, char *path);
 ** transfer_thread_function.c
 */
 void *start_pasv_thread(void *arg);
+int parse_cmd(client_data_t *cdata);
 
 #endif //MY_FTP_MY_FTP_H

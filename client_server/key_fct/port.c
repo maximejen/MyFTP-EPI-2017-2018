@@ -15,38 +15,65 @@
 
 static const char *LOG_PLS = "Please login with USER and PASS.";
 
-static int connect_to(client_data_t *cdata, char *ip, int port)
+static const char *FAIL = "Invalid PORT command.";
+
+int asprintf(char **strp, const char *fmt, ...);
+
+static int connect_to(client_data_t *cd, char **t)
 {
 	struct protoent *pe;
-	struct sockaddr_in s_in;
+	struct sockaddr_in s;
+	char *ip;
+	int port[3];
 
+	asprintf(&ip, "%s.%s.%s.%s", t[0], t[1], t[2], t[3]);
+	port[0] = atoi(t[4]);
+	port[1] = atoi(t[5]);
+	port[2] = port[0] * 256 + port[1];
 	if (!(pe = getprotobyname("TCP")))
 		return (1);
-	cdata->tsock = socket(AF_INET, SOCK_STREAM, pe->p_proto);
-	if (cdata->tsock == INVALID_SOCKET)
-		return (-1 + 0 * close(cdata->tsock));
-	s_in.sin_family = AF_INET;
-	s_in.sin_port = htons((uint16_t)port);
-	s_in.sin_addr.s_addr = inet_addr(ip);
-	connect(cdata->tsock, (const struct sockaddr *)&s_in, sizeof(s_in));
+	cd->tsock = socket(AF_INET, SOCK_STREAM, pe->p_proto);
+	if (cd->tsock == INVALID_SOCKET)
+		return (-1 + 0 * close(cd->tsock));
+	s.sin_family = AF_INET;
+	s.sin_port = htons((uint16_t)port[2]);
+	s.sin_addr.s_addr = inet_addr(ip);
+	dprintf(cd->csock, "200 Correctly connected to %s:%d%s", ip, port[2],
+		CLRF);
+	if (connect(cd->tsock, (const struct sockaddr *)&s, sizeof(s)) == -1)
+		return (1);
 	return (0);
+}
+
+static void *finish_socket_usage(client_data_t *cdata, char **tab)
+{
+	free(cdata->cmd);
+	cdata->cmd = NULL;
+	close(cdata->tsock);
+	cdata->tsock = 0;
+	free_wordtab(tab);
+	return ("OK");
 }
 
 static void *start_port_thread(void *arg)
 {
-	client_data_t *cdata = arg;
-	char **tab = custom_split(cdata->cmd, '-');
+	client_data_t *cd = arg;
+	char **tab = custom_split(cd->cmd, ',');
+	int size = 0;
 
-	cdata->cmd = NULL;
-	if (cdata->tsock != 0) {
-		close(cdata->tsock);
-		cdata->tsock = 0;
+	cd->cmd = NULL;
+	if (cd->tsock != 0) {
+		close(cd->tsock);
+		cd->tsock = 0;
 	}
-	printf("ip : %s\n", tab[0]);
-	printf("port : %d\n", atoi(tab[1]));
-	connect_to(cdata, tab[0], atoi(tab[1]));
-	free_wordtab(tab);
-	return ("OK");
+	for (size = 0 ; tab[size] ; size++);
+	if (size < 6 || connect_to(cd, tab) == 1) {
+		free_wordtab(tab);
+		send_message(cd->csock, 550, FAIL);
+		return ("KO");
+	}
+	while (cd->cmd == NULL);
+	return (parse_cmd(cd) != 1 ? finish_socket_usage(cd, tab) : "KO");
 }
 
 int port(struct client_data *cdata, char **cmd)

@@ -21,7 +21,7 @@ static const char *KEYS[4] = {
 	NULL
 };
 
-static int parse_cmd(client_data_t *cdata)
+int parse_cmd(client_data_t *cdata)
 {
 	char **tab = custom_split(cdata->cmd, ' ');
 	int i;

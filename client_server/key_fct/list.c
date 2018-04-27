@@ -46,7 +46,7 @@ int exec_list(client_data_t *cdata, char *path)
 		while ((c = (char)getc(f)) > 0)
 			write(cdata->tsock, &c, 1);
 		pclose(f);
-		send_message(cdata->csock, 220, SUCCESS);
+		send_message(cdata->csock, 226, SUCCESS);
 	}
 	else {
 		send_message(cdata->csock, 550, FAIL);

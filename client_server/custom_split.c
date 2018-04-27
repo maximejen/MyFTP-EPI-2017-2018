@@ -61,6 +61,8 @@ void free_wordtab(char **tab)
 
 char *strtoupper(char *str)
 {
+	if (!str)
+		return (str);
 	for (int i = 0 ; str[i] ; i++) {
 		if (str[i] >= 'a' && str[i] <= 'z')
 			str[i] -= 32;

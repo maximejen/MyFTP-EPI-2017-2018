@@ -25,7 +25,9 @@ static int check_path(client_data_t *cdata, const char *path)
 {
 	struct stat buf;
 
+	printf("path : %s\n", path);
 	if (stat(path, &buf) != -1 && S_ISREG(buf.st_mode) &&
+		!access(path, R_OK) &&
 		strncmp(cdata->home, path, strlen(cdata->home)) == 0) {
 		return (1);
 	}

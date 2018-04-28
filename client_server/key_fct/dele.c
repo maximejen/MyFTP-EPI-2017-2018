@@ -23,6 +23,7 @@ static int check_path(client_data_t *cdata, char **path)
 	struct stat buf;
 
 	if (stat(*path, &buf) != -1 && S_ISREG(buf.st_mode) &&
+		!access(*path, W_OK) &&
 		strncmp(cdata->home, *path, strlen(cdata->home)) == 0) {
 		if (unlink(*path) == -1)
 			send_message(cdata->csock, 550, FAIL);

@@ -10,7 +10,6 @@
 #include <stdlib.h>
 #include <zconf.h>
 #include "../include/my_ftp.h"
-#include "../include/get_next_line.h"
 
 static const char *KEYS[15] = {
 	"CDUP",

@@ -42,7 +42,7 @@ int is_auth(client_data_t *cdata)
 int handle_client(csd_t *data)
 {
 	client_data_t cdata = {data->client_sock, NULL, 0, strdup("/"),
-		strdup(data->args.path), {NULL}, "", 1, 0, NULL, {0}};
+		strdup(data->args.path), {NULL}, "", 1, 0, NULL, {{0}}};
 
 	pthread_barrier_init(&cdata.barrier, NULL, 2);
 	fill_function_ptr(&cdata);
@@ -56,5 +56,6 @@ int handle_client(csd_t *data)
 	}
 	close(cdata.csock);
 	free(cdata.pwd);
+	pthread_barrier_destroy(&cdata.barrier);
 	return (0);
 }

@@ -10,6 +10,7 @@
 #include <memory.h>
 #include <stdlib.h>
 #include <sys/stat.h>
+#include <zconf.h>
 #include "../../include/my_ftp.h"
 
 static const char *LOG_PLS = "Please login with USER and PASS.";
@@ -24,6 +25,7 @@ static int check_path(client_data_t *cdata, char **path)
 	size_t size = strlen(*path);
 
 	if (stat(*path, &buf) != -1 && S_ISDIR(buf.st_mode) &&
+		!access(*path, X_OK) &&
 		strncmp(cdata->home, *path, strlen(cdata->home)) == 0) {
 		free(cdata->pwd);
 		if ((*path)[size - 1] != '/')

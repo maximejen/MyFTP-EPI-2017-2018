@@ -65,10 +65,7 @@ int list(struct client_data *cdata, char **cmd)
 		}
 		cdata->cmd = strdup("LIST");
 		cdata->cmd = str_push(cdata->cmd, " ");
-		if (cmd[1])
-			cdata->cmd = str_push(cdata->cmd, cmd[1]);
-		else
-			cdata->cmd = str_push(cdata->cmd, ".");
+		cdata->cmd = str_push(cdata->cmd, cmd[1] ? cmd[1] : ".");
 		send_message(cdata->csock, 150, WAIT_LIST);
 		pthread_barrier_wait(&cdata->barrier);
 	}

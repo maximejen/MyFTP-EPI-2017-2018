@@ -49,6 +49,7 @@ int handle_client(csd_t *data)
 	while (cdata.ctn) {
 		if (get_instruction(&cdata) == -1)
 			return (-1);
+		printf("cmd : %s\n", cdata.buffer);
 		interpret_instruction(&cdata);
 		memset(cdata.buffer, 0, BUFFER_SIZE);
 	}

@@ -34,7 +34,8 @@ SRC	=	main.c							\
                 communication/communication.c				\
                 client_server/read_and_interpret.c			\
                 client_server/key_fct/unknown.c				\
-                client_server/key_fct/transfer_thread_functions.c
+                client_server/key_fct/transfer_thread_functions.c	\
+                get_next_line.c
 
 OBJ	=	$(SRC:.c=.o)
 

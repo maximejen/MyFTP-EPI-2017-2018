@@ -8,7 +8,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <zconf.h>
 #include "../include/my_ftp.h"
+#include "../include/get_next_line.h"
 
 static const char *KEYS[15] = {
 	"CDUP",
@@ -28,12 +30,23 @@ static const char *KEYS[15] = {
 	NULL
 };
 
+//static char *read_instruction(t_socket sock, int *size)
+//{
+//	char *str = NULL;
+//	FILE *fsock = fdopen(sock, "r");
+//
+//	printf("read in socket\n");
+//	if (getline(&str, (size_t *)size, fsock) < 0)
+//		return (NULL);
+//	return (str);
+//}
+
 static char *read_instruction(t_socket sock, int *size)
 {
-	char *str = NULL;
-	FILE *fsock = fdopen(sock, "r");
+	char *str;
 
-	if (getline(&str, (size_t *)size, fsock) < 0)
+	UNUSED(size);
+	if ((str = get_next_line(sock)) == NULL)
 		return (NULL);
 	return (str);
 }
@@ -47,7 +60,6 @@ int get_instruction(client_data_t *cdata)
 	if (str) {
 		str = str_replace(str, CLRF, "\0");
 		strncpy(cdata->buffer, str, strlen(str));
-		free(str);
 	} else
 		return (-1);
 	return (0);

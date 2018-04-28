@@ -7,13 +7,18 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 static size_t count_char(const char *str, char c)
 {
 	size_t count = 0;
 
 	for (int i = 0 ; str[i] ; i++) {
-		if (str[i] == c)
+		while (str[i] && str[i] != c)
+			i++;
+		while (str[i] && str[i] == c)
+			i++;
+		if (str[i] && str[i] != c)
 			count++;
 	}
 	return (count + 1);
@@ -43,19 +48,25 @@ char **custom_split(const char *str, char c)
 	if (!tab)
 		return (NULL);
 	while (str[i]) {
-		tab[y++] = get_element(str, &i, c);
+		tab[y] = get_element(str, &i, c);
+		y++;
 		if (str[i])
 			i++;
 	}
 	tab[size] = NULL;
+	for (int j = 0 ; tab[j] ; j++) {
+		printf("tab[j] : %s\n", tab[j]);
+	}
 	return (tab);
 }
 
 void free_wordtab(char **tab)
 {
-	for (int i = 0 ; tab[i] ; i++) {
+	int i = 0;
+
+	for (i = 0 ; tab[i] ; i++)
 		free(tab[i]);
-	}
+	free(tab[i]);
 	free(tab);
 }
 

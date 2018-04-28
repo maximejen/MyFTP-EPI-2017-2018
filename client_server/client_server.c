@@ -51,6 +51,7 @@ int handle_client(csd_t *data)
 			return (-1);
 		printf("cmd : %s\n", cdata.buffer);
 		interpret_instruction(&cdata);
+		printf("end of interpret_action\n");
 		memset(cdata.buffer, 0, BUFFER_SIZE);
 	}
 	close(cdata.csock);

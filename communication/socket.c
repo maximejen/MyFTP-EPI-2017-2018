@@ -26,7 +26,7 @@ int create_socket(int port, const char *protocol)
 		return (-1 + 0 * close(sock));
 	s_in.sin_family = AF_INET;
 	s_in.sin_port = htons((uint16_t)port);
-	s_in.sin_addr.s_addr = INADDR_ANY; //inet_addr();
+	s_in.sin_addr.s_addr = INADDR_ANY;
 	setsockopt(sock, SOCK_STREAM, SO_REUSEADDR, &opt, sizeof(int));
 	if (bind(sock, (const struct sockaddr *)&s_in, sizeof(s_in)) == -1)
 		return (-1 + 0 * close(sock));

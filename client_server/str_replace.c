@@ -42,9 +42,6 @@ char *str_replace(char *str, const char *to_replace, const char *replace_str)
 			return (NULL);
 		if (tmp1 && !(s = str_push(s, replace_str)))
 			return (NULL);
-//		if (tmp && tmp1 && (!(s = str_push(s, tmp)) ||
-//			!(s = str_push(s, replace_str))))
-//			return (NULL);
 	} while (tmp);
 	free(str);
 	return s;

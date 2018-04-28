@@ -41,18 +41,15 @@ int dele(struct client_data *cdata, char **cmd)
 	if (is_auth(cdata)) {
 		if (cmd[1] == NULL || cmd[2] != NULL) {
 			free(path);
-			send_message(cdata->csock, 550, FAIL);
-			return (1);
+			return (1 + send_message(cdata->csock, 550, FAIL));
 		}
 		path = str_push(path, cdata->pwd);
 		path = str_push(path, cmd[1]);
 		path = realpath(path, NULL);
 		if (!path) {
 			free(path);
-			send_message(cdata->csock, 550, FAIL);
-			return (1);
-		}
-		if (check_path(cdata, &path) == 0)
+			return (1 + send_message(cdata->csock, 550, FAIL));
+		} else if (check_path(cdata, &path) == 0)
 			send_message(cdata->csock, 250, SUCCESS);
 		free(path);
 	} else

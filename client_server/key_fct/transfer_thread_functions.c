@@ -81,7 +81,6 @@ void *start_pasv_thread(void *arg)
 	if (listen(cdata->tsock, p[2]) == -1)
 		return ("KO");
 	cdata->tsock = accept(cdata->tsock, (struct sockaddr *)&sc, &ss);
-//	while (cdata->cmd == NULL);
 	pthread_barrier_wait(&cdata->barrier);
 	return (parse_cmd(cdata) != 1 ? finish_socket_usage(cdata) : "KO");
 }

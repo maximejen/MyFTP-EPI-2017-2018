@@ -72,7 +72,6 @@ int main(int argc, char **argv)
 		ret = parse_args(argc, argv, &args);
 		if (ret != 84) {
 			data.args = args;
-			printf("home : %s\n", data.args.path);
 			ret = wait_for_connections(&data);
 		}
 		return (ret);

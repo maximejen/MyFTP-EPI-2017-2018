@@ -40,6 +40,7 @@ typedef struct client_data {
 	int ctn;
 	t_socket tsock;
 	char *cmd;
+	pthread_barrier_t barrier;
 } client_data_t;
 
 /*

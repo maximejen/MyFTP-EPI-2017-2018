@@ -13,7 +13,7 @@ static size_t count_char(const char *str, char c)
 {
 	size_t count = 0;
 
-	for (int i = 0 ; str[i] ; i++) {
+	for (int i = 0 ; str[i] ;) {
 		while (str[i] && str[i] != c)
 			i++;
 		while (str[i] && str[i] == c)
@@ -54,9 +54,6 @@ char **custom_split(const char *str, char c)
 			i++;
 	}
 	tab[size] = NULL;
-	for (int j = 0 ; tab[j] ; j++) {
-		printf("tab[j] : %s\n", tab[j]);
-	}
 	return (tab);
 }
 

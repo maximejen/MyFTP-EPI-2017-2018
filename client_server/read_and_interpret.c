@@ -35,21 +35,10 @@ static char *read_instruction(t_socket sock, int *size)
 	char *str = NULL;
 	FILE *fsock = fdopen(sock, "r");
 
-	printf("read in socket\n");
 	if (getline(&str, (size_t *)size, fsock) < 0)
 		return (NULL);
 	return (str);
 }
-
-//static char *read_instruction(t_socket sock, int *size)
-//{
-//	char *str;
-//
-//	UNUSED(size);
-//	if ((str = get_next_line(sock)) == NULL)
-//		return (NULL);
-//	return (str);
-//}
 
 int get_instruction(client_data_t *cdata)
 {

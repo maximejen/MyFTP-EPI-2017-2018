@@ -38,10 +38,9 @@ static int connect_to(client_data_t *cd, char **t)
 	s.sin_family = AF_INET;
 	s.sin_port = htons((uint16_t)port[2]);
 	s.sin_addr.s_addr = inet_addr(ip);
-	dprintf(cd->csock, "200 Correctly connected to %s:%d%s", ip, port[2],
-		CLRF);
 	if (connect(cd->tsock, (const struct sockaddr *)&s, sizeof(s)) == -1)
 		return (1);
+	dprintf(cd->csock, "200 Connection to %s:%d%s", ip, port[2], CLRF);
 	return (0);
 }
 
@@ -72,7 +71,7 @@ static void *start_port_thread(void *arg)
 		send_message(cd->csock, 550, FAIL);
 		return ("KO");
 	}
-	while (cd->cmd == NULL);
+	pthread_barrier_wait(&cd->barrier);
 	return (parse_cmd(cd) != 1 ? finish_socket_usage(cd, tab) : "KO");
 }
 

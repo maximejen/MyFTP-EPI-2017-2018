@@ -10,6 +10,7 @@
 #include <zconf.h>
 #include <sys/stat.h>
 #include <stdio.h>
+#include <pthread.h>
 #include "../../include/my_ftp.h"
 
 static const char *LOG_PLS = "Please login with USER and PASS.";
@@ -39,7 +40,6 @@ int exec_retr(client_data_t *cdata, char *path)
 
 	path = realpath(path, NULL);
 	memset(buf, 0, 1024);
-	printf("path : %s\n", path);
 	if (check_path(cdata, path)) {
 		fd = open(path, O_RDONLY, 0644);
 		while ((rd = read(fd, buf, 1023)))
@@ -64,7 +64,7 @@ int retr(struct client_data *cdata, char **cmd)
 		else
 			cdata->cmd = str_push(cdata->cmd, ".");
 		send_message(cdata->csock, 150, SUCCESS_CNCT);
-		// Todo : UNLOCK the mutex for the thread.
+		pthread_barrier_wait(&cdata->barrier);
 	}
 	else
 		send_message(cdata->csock, 530, LOG_PLS);

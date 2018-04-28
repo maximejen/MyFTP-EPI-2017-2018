@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <memory.h>
 #include <zconf.h>
+#include <pthread.h>
 #include "../include/my_ftp.h"
 
 static void fill_function_ptr(client_data_t *cdata)
@@ -41,17 +42,16 @@ int is_auth(client_data_t *cdata)
 int handle_client(csd_t *data)
 {
 	client_data_t cdata = {data->client_sock, NULL, 0, strdup("/"),
-		strdup(data->args.path), {NULL}, "", 1, 0, NULL};
+		strdup(data->args.path), {NULL}, "", 1, 0, NULL, {0}};
 
+	pthread_barrier_init(&cdata.barrier, NULL, 2);
 	fill_function_ptr(&cdata);
 	memset(cdata.buffer, 0, BUFFER_SIZE);
 	send_message(cdata.csock, 220, "You are correctly connected");
 	while (cdata.ctn) {
 		if (get_instruction(&cdata) == -1)
 			return (-1);
-		printf("cmd : %s\n", cdata.buffer);
 		interpret_instruction(&cdata);
-		printf("end of interpret_action\n");
 		memset(cdata.buffer, 0, BUFFER_SIZE);
 	}
 	close(cdata.csock);
